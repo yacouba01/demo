@@ -17,6 +17,6 @@ public class UsersResponse {
     private String lastName;
     private String email;
     private String phoneNumber;
-    private List<Role> roles;
+    private List<RoleResponse> roles;
     private State state;
 }

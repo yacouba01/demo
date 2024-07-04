@@ -1,5 +1,6 @@
 package com.malinov.demo.services.users;
 
+import com.malinov.demo.dto.RoleResponse;
 import com.malinov.demo.dto.UsersResponse;
 import com.malinov.demo.enums.State;
 import com.malinov.demo.exceptions.AlreadyExistException;
@@ -88,13 +89,21 @@ public class UsersServiceImpl implements UsersService {
 
     @Override
     public UsersResponse mapToResponse(Users users) {
+        List<RoleResponse> roles = new ArrayList<>();
+        if (users.getRoles() != null && !users.getRoles().isEmpty()) {
+            roles = users.getRoles().stream()
+                    .map(role -> RoleResponse.builder()
+                                    .id(role.getId())
+                                    .name(role.getName())
+                                    .build()).toList();
+        }
         return UsersResponse.builder()
                 .id(users.getId())
                 .firstName(users.getFirstName())
                 .lastName(users.getLastName())
                 .email(users.getEmail())
                 .phoneNumber(users.getPhoneNumber())
-                .roles(users.getRoles())
+                .roles(roles)
                 .state(users.getState())
                 .build();
     }
