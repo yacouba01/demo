@@ -9,6 +9,7 @@ import com.malinov.demo.models.Users;
 import com.malinov.demo.repositories.UsersRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,12 +22,20 @@ import java.util.List;
 public class UsersServiceImpl implements UsersService {
 
     private final UsersRepository usersRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UsersResponse save(Users users) {
         Users phoneNumber = usersRepository.findByPhoneNumber(users.getPhoneNumber());
         if (phoneNumber != null) {
             throw new AlreadyExistException("Le numéro de téléphone est déjà utilisé.");
+        }
+        Users email = usersRepository.findByEmailAndStateNot(users.getEmail(), State.DELETED);
+        if (email != null) {
+            throw new AlreadyExistException("Cette adresse email est déjà utilisé.");
+        }
+        if (users.getPassword() != null && !users.getPassword().isEmpty()) {
+            users.setPassword(passwordEncoder.encode(users.getPassword()));
         }
         return mapToResponse(usersRepository.save(users));
     }
