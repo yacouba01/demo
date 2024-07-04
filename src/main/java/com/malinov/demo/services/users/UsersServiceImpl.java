@@ -2,6 +2,8 @@ package com.malinov.demo.services.users;
 
 import com.malinov.demo.dto.UsersResponse;
 import com.malinov.demo.enums.State;
+import com.malinov.demo.exceptions.AlreadyExistException;
+import com.malinov.demo.exceptions.ResourceNotFoundException;
 import com.malinov.demo.models.Users;
 import com.malinov.demo.repositories.UsersRepository;
 import jakarta.transaction.Transactional;
@@ -21,12 +23,19 @@ public class UsersServiceImpl implements UsersService {
 
     @Override
     public UsersResponse save(Users users) {
+        Users phoneNumber = usersRepository.findByPhoneNumber(users.getPhoneNumber());
+        if (phoneNumber != null) {
+            throw new AlreadyExistException("Le numéro de téléphone est déjà utilisé.");
+        }
         return mapToResponse(usersRepository.save(users));
     }
 
     @Override
     public UsersResponse findByIdAndState(Long id, State state) {
         Users users = usersRepository.findByIdAndState(id, state);
+        if (users == null) {
+            throw new ResourceNotFoundException("Cet utilisateur n'existe pas.");
+        }
         return mapToResponse(users);
     }
 
@@ -38,9 +47,18 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
+    public List<UsersResponse> findByStateNot(State state) {
+        List<Users> users = usersRepository.findByStateNot(state);
+        users.sort(Comparator.comparing(Users::getId).reversed());
+        return mapToResponse(users);
+    }
+
+    @Override
     public UsersResponse update(Users users) {
         Users userToUpdate = usersRepository.findByIdAndStateNot(users.getId(), State.ACTIVATED);
-
+        if (userToUpdate == null) {
+            throw new ResourceNotFoundException("Cet utilisateur n'existe pas.");
+        }
         userToUpdate.setFirstName(users.getFirstName());
         userToUpdate.setLastName(users.getLastName());
         userToUpdate.setEmail(users.getEmail());
@@ -52,12 +70,18 @@ public class UsersServiceImpl implements UsersService {
     @Override
     public void delete(Long id) {
         Users users = usersRepository.findByIdAndStateNot(id, State.DELETED);
+        if (users == null) {
+            throw new ResourceNotFoundException("Cet utilisateur n'existe pas.");
+        }
         users.setState(State.DELETED);
     }
 
     @Override
     public UsersResponse activate(Users users) {
         Users userToActivate = usersRepository.findByIdAndStateNot(users.getId(), State.DELETED);
+        if (userToActivate == null) {
+            throw new ResourceNotFoundException("Cet utilisateur n'existe pas.");
+        }
         userToActivate.setState(State.ACTIVATED);
         return mapToResponse(usersRepository.save(userToActivate));
     }
