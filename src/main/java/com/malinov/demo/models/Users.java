@@ -4,6 +4,7 @@ import com.malinov.demo.enums.State;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +22,7 @@ public class Users {
     private String email;
     private String password;
     private String phoneNumber;
+    private LocalDateTime createdAt = LocalDateTime.now();
     @ManyToMany(fetch = FetchType.EAGER)
     @ToString.Exclude
     private List<Role> roles = new ArrayList<>();

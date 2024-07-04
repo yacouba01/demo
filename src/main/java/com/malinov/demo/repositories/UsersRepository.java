@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface UsersRepository extends JpaRepository<Users, Long> {
     Users findByIdAndState(Long id, State state);
+    Users findByEmailAndState(String email, State state);
     Users findByIdAndStateNot(Long id, State state);
     List<Users> findByState(State state);
     List<Users> findByStateNot(State state);
