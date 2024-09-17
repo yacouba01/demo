@@ -2,14 +2,13 @@ package com.malinov.demo.dto;
 
 import com.malinov.demo.enums.State;
 import com.malinov.demo.models.Role;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Builder
 @Getter @Setter
+@AllArgsConstructor @NoArgsConstructor
 public class UsersResponse {
 
     private Long id;
